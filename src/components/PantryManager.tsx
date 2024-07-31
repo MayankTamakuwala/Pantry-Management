@@ -8,6 +8,7 @@ import useDebounce from '@/hooks/useDebounce';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Tab } from '@mui/material';
 import { Delete, Edit, Save } from '@mui/icons-material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+import CameraComponent from './CameraComponent';
 
 interface PantryItem {
     id?: string;
@@ -56,18 +57,18 @@ const PantryManager: React.FC = () => {
         fetchItems();
     };
 
-    const handleSave = async (params: GridRenderCellParams) => {
-        const itemRef = doc(db, 'pantry', params.row.id);
-        await updateDoc(itemRef, {
-            name: params.row.name,
-            quantity: params.row.quantity
-        });
-        fetchItems();
-        setRowModesModel((prevModel) => ({
-            ...prevModel,
-            [params.id]: { mode: GridRowModes.View, fieldToFocus: undefined },
-        }));
-    };
+    // const handleSave = async (params: GridRenderCellParams) => {
+    //     const itemRef = doc(db, 'pantry', params.row.id);
+    //     await updateDoc(itemRef, {
+    //         name: params.row.name,
+    //         quantity: params.row.quantity
+    //     });
+    //     fetchItems();
+    //     setRowModesModel((prevModel) => ({
+    //         ...prevModel,
+    //         [params.id]: { mode: GridRowModes.View, fieldToFocus: undefined },
+    //     }));
+    // };
 
     const handleRowEditStart: GridEventListener<'rowEditStart'> = (params, event) => {
         event.defaultMuiPrevented = true;
@@ -106,7 +107,7 @@ const PantryManager: React.FC = () => {
             flex: 1,
             align: "center",
             headerAlign: "center",
-            editable: true,
+            editable: false,
         },
         {
             field: 'quantity',
@@ -151,23 +152,23 @@ const PantryManager: React.FC = () => {
                     </IconButton>
                 </>
             ),
-            renderEditCell: (params) => (
-                <>
-                    <IconButton
-                        onClick={() => handleSave(params)}
-                    >
-                        <Save />
-                    </IconButton>
-                    <IconButton
-                        onClick={() => {
-                            setConfirmDelete(true);
-                            setDeleteItemId(params.row.id);
-                        }}
-                    >
-                        <Delete />
-                    </IconButton>
-                </>
-            )
+            // renderEditCell: (params) => (
+            //     <>
+            //         <IconButton
+            //             onClick={() => handleSave(params)}
+            //         >
+            //             <Save />
+            //         </IconButton>
+            //         <IconButton
+            //             onClick={() => {
+            //                 setConfirmDelete(true);
+            //                 setDeleteItemId(params.row.id);
+            //             }}
+            //         >
+            //             <Delete />
+            //         </IconButton>
+            //     </>
+            // )
         }
     ];
 
@@ -177,8 +178,8 @@ const PantryManager: React.FC = () => {
             <TabContext value={tabValue}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList onChange={handleTabChange} centered>
-                        <Tab label="Add Item Using Form" value="1" />
-                        <Tab label="Add Item Using Camera" value="2" />
+                        <Tab label="Add Using Form" value="1" />
+                        <Tab label="Add Using Camera" value="2" />
                     </TabList>
                 </Box>
                 <TabPanel value="1">
@@ -187,7 +188,9 @@ const PantryManager: React.FC = () => {
                         refreshItems={fetchItems}
                     />
                 </TabPanel>
-                <TabPanel value="2">Item Two</TabPanel>
+                <TabPanel value="2">
+                    <CameraComponent refreshItems={fetchItems}/>
+                </TabPanel>
             </TabContext>
             <div style={{ height: 400, width: '100%' }}>
                 <DataGrid
@@ -198,6 +201,7 @@ const PantryManager: React.FC = () => {
                     onRowEditStart={handleRowEditStart}
                     onRowEditStop={handleRowEditStop}
                     processRowUpdate={processRowUpdate}
+                    onRowDoubleClick={(p, e) => {e.stopPropagation()}}
                 />
             </div>
         </>

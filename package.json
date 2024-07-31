@@ -17,6 +17,7 @@
     "@mui/x-data-grid": "^7.11.1",
     "firebase": "^10.12.4",
     "next": "14.2.5",
+    "openai": "^4.53.2",
     "react": "^18",
     "react-camera-pro": "^1.4.0",
     "react-dom": "^18"
