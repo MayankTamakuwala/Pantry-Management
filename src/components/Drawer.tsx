@@ -103,7 +103,7 @@ export default function SwipeableEdgeDrawer(props: Props) {
                 }
             }
         } catch (error) {
-            setMessages([<p>Error: Something Fucked Up</p>]);
+            setMessages([<p>Error: Something Went Wrong</p>]);
             console.error('Error fetching data:', error);
         } finally {
             setLoading(false);
