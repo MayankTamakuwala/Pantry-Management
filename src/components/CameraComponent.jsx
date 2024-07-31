@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Camera } from 'react-camera-pro';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from '@mui/material';
 import { Cancel } from '@mui/icons-material';
-import { client } from '@/lib/openAI';
 import { useAlert } from '@/context';
 import { collection, addDoc, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
@@ -41,31 +40,40 @@ const CameraComponent = ({ refreshItems }) => {
     const handleAdd = async () => {
         setLoading(true);
         try {
-            const response = await client.chat.completions.create({
-                model: 'gpt-4o',
-                messages: [
-                    {
-                        role: 'system', content: [
+            const response = await fetch("/api/imageRecognition", {
+                method: "POST",
+                body: JSON.stringify({
+                    messages:
+                        [
                             {
-                                'type': 'text',
-                                "text": "You are a pantry item predictor that can predict an item I am holding in my hand in the image. Return only the name of the item that I am holding in the image. If it is not a pantry item, then reply 'false' as an answer."
-                            }
-                        ]
-                    },
-                    {
-                        "role": "user",
-                        "content": [
+                                role: "system",
+                                content: [
+                                    {
+                                        type: "text",
+                                        text: "You are a pantry item predictor that can predict an item I am holding in my hand in the image. Return only the name of the item that I am holding in the image. If it is not a pantry item, then reply 'false' as an answer.",
+                                    },
+                                ],
+                            },
                             {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": image
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                role: "user",
+                                content: [
+                                    {
+                                        type: "image_url",
+                                        image_url: {
+                                            url: image,
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             })
-            const result = response.choices[0].message.content
+
+            
+            const result = (await response.json()).data
             if (result !== "false") {
                 const pantryRef = collection(db, `users/${user.uid}/pantry`);
                 const q = query(pantryRef, where("name", "==", result));
