@@ -95,9 +95,9 @@ export default function SwipeableEdgeDrawer(props: Props) {
                         body: JSON.stringify({
                             items: items
                         })
-                    }).then(res => res.json());
+                    }).then(res => res.json())
 
-                    setMessages(parseApiResponse(response.choices[0].message.content));
+                    setMessages(parseApiResponse(response.data));
                 } else {
                     setMessages([<p className='text-xl'>You have No Item in your pantry</p>]);
                 }
