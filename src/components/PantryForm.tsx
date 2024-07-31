@@ -33,7 +33,7 @@ const PantryForm: React.FC<PantryFormProps> = ({ className, children, refreshIte
     };
 
     return (
-        <form onSubmit={handleSubmit} className={className}>
+        <form onSubmit={handleSubmit} className={className + ' flex-wrap gap-4'}>
             <TextField
                 label="Item Name"
                 name="name"

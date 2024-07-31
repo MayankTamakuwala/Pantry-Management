@@ -7,12 +7,21 @@ import { useAlert } from '@/context';
 import { collection, addDoc, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 
-const CameraComponent = ({refreshItems}) => {
+const CameraComponent = ({ refreshItems }) => {
     const camera = useRef(null);
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [cameraSupported, setCameraSupported] = useState(true);
     const alert = useAlert();
+
+    useEffect(() => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+            console.log("Camera API is not supported in this browser");
+            setCameraSupported(false);
+            alert.error("Camera is not supported on this device or browser");
+        }
+    }, []);
 
     const takePhoto = () => {
         if (camera.current) {
@@ -34,28 +43,28 @@ const CameraComponent = ({refreshItems}) => {
                 model: 'gpt-4o',
                 messages: [
                     {
-                    role: 'system', content: [
-                        {
-                            'type': 'text',
-                            "text": "You are a pantry item predictor that can predict an item I am holding in my hand in the image. Return only the name of the item that I am holding in the image. If it is not a pantry item, then reply 'false' as an answer."
-                        }
-                    ]
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": image
+                        role: 'system', content: [
+                            {
+                                'type': 'text',
+                                "text": "You are a pantry item predictor that can predict an item I am holding in my hand in the image. Return only the name of the item that I am holding in the image. If it is not a pantry item, then reply 'false' as an answer."
                             }
-                        }
-                    ]
-                }
-            ]
+                        ]
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": image
+                                }
+                            }
+                        ]
+                    }
+                ]
             })
             const result = response.choices[0].message.content
-            if(result !== "false"){
+            if (result !== "false") {
                 const pantryRef = collection(db, 'pantry');
                 const q = query(pantryRef, where("name", "==", result));
                 const querySnapshot = await getDocs(q);
@@ -80,7 +89,7 @@ const CameraComponent = ({refreshItems}) => {
         } catch (error) {
             console.error(error)
             alert.error(error)
-        } finally{
+        } finally {
             setOpenModal(false);
             setLoading(false);
             setImage(null);
@@ -89,17 +98,26 @@ const CameraComponent = ({refreshItems}) => {
 
     return (
         <Box className="flex flex-col items-center">
-            <Box className="border-2 border-gray-300" sx={{ width: '320px', height: '240px' }}>
-                <Camera
-                    facingMode="environment"
-                    ref={camera}
-                    aspectRatio={4 / 3}
-                    numberOfCamerasCallback={(numberOfCameras) => console.log('Number of cameras detected:', numberOfCameras)}
-                />
-            </Box>
-            <Button onClick={takePhoto} variant="contained" color="primary" className="mt-4">
-                Take Photo
-            </Button>
+            {cameraSupported ? (
+                <>
+                    <Box className="border-2 border-gray-300" sx={{ width: '320px', height: '240px' }}>
+                        <Camera
+                            facingMode="environment"
+                            ref={camera}
+                            aspectRatio={4 / 3}
+                            numberOfCamerasCallback={(numberOfCameras) => console.log('Number of cameras detected:', numberOfCameras)}
+                        />
+                    </Box>
+                    <Button onClick={takePhoto} variant="contained" color="primary" className="mt-4">
+                        Take Photo
+                    </Button>
+                </>
+            ) : (
+                <p className='text-red-600'>
+                    Camera is not supported on this device or browser. Please try using a different device or updating your browser.
+                </p>
+            )}
+
             <Dialog
                 open={openModal}
                 onClose={!loading ? handleCancel : undefined}
