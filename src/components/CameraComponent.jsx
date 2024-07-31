@@ -6,6 +6,7 @@ import { client } from '@/lib/openAI';
 import { useAlert } from '@/context';
 import { collection, addDoc, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
+import { useAuth } from '@/context/AuthContext';
 
 const CameraComponent = ({ refreshItems }) => {
     const camera = useRef(null);
@@ -13,6 +14,7 @@ const CameraComponent = ({ refreshItems }) => {
     const [loading, setLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [cameraSupported, setCameraSupported] = useState(true);
+    const { user } = useAuth();
     const alert = useAlert();
 
     useEffect(() => {
@@ -65,7 +67,7 @@ const CameraComponent = ({ refreshItems }) => {
             })
             const result = response.choices[0].message.content
             if (result !== "false") {
-                const pantryRef = collection(db, 'pantry');
+                const pantryRef = collection(db, `users/${user.uid}/pantry`);
                 const q = query(pantryRef, where("name", "==", result));
                 const querySnapshot = await getDocs(q);
 

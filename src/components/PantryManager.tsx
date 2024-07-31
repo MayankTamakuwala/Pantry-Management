@@ -9,6 +9,7 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, D
 import { Delete, Edit, Save } from '@mui/icons-material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import CameraComponent from './CameraComponent';
+import { useAuth } from '@/context/AuthContext';
 
 interface PantryItem {
     id?: string;
@@ -23,14 +24,17 @@ const PantryManager: React.FC = () => {
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
     const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+    const { user } = useAuth();
     const [tabValue, setTabValue] = useState('1')
 
     const fetchItems = async () => {
-        const q = query(collection(db, "pantry"));
-        const querySnapshot = await getDocs(q);
-        const itemsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PantryItem[];
-        setItems(itemsList);
-        setFilteredItems(itemsList);
+        if(user){
+            const q = query(collection(db, `users/${user.uid}/pantry`));
+            const querySnapshot = await getDocs(q);
+            const itemsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PantryItem[];
+            setItems(itemsList);
+            setFilteredItems(itemsList);
+        }
     };
 
     useEffect(() => {
@@ -51,10 +55,12 @@ const PantryManager: React.FC = () => {
     }, [debouncedSearchQuery, items]);
 
     const handleDelete = async (id: string) => {
-        await deleteDoc(doc(db, 'pantry', id));
-        setConfirmDelete(false);
-        setDeleteItemId(null);
-        fetchItems();
+        if(user){
+            await deleteDoc(doc(db, `users/${user.uid}/pantry`, id));
+            setConfirmDelete(false);
+            setDeleteItemId(null);
+            fetchItems();
+        }
     };
 
     // const handleSave = async (params: GridRenderCellParams) => {
@@ -91,12 +97,14 @@ const PantryManager: React.FC = () => {
     };
 
     const processRowUpdate = async (newRow: PantryItem) => {
-        const itemRef = doc(db, 'pantry', newRow.id!);
-        await updateDoc(itemRef, {
-            name: newRow.name,
-            quantity: newRow.quantity
-        });
-        fetchItems();
+        if(user){
+            const itemRef = doc(db, `users/${user.uid}/pantry`, newRow.id!);
+            await updateDoc(itemRef, {
+                name: newRow.name,
+                quantity: newRow.quantity
+            });
+            fetchItems();
+        }
         return newRow;
     };
 

@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 
 export const client = new OpenAI({
-	// apiKey: "sk-proj-jXsCVJEtz4lFog25j8chT3BlbkFJz8Gzzl91kGthbgJsCtTb",
-	apiKey: "my-key",
+	apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
 	dangerouslyAllowBrowser: true,
 });

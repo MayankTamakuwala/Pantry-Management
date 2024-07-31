@@ -5,11 +5,15 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { grey } from '@mui/material/colors';
 import Typography from '@mui/material/Typography';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import { Box, IconButton, Skeleton } from '@mui/material';
+import { Box, IconButton, Skeleton, Avatar, Menu, MenuItem, Button, Tooltip } from '@mui/material';
 import { AutoAwesome } from '@mui/icons-material';
 import AnimatedRainbowButton from './RainbowButton';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useAuth } from '@/context/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { signInWithGoogle } from '@/lib/auth';
 
 const drawerBleeding = 56;
 
@@ -48,10 +52,27 @@ export default function SwipeableEdgeDrawer(props: Props) {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState<React.JSX.Element[]>([]);
     const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const openMenu = Boolean(anchorEl);
+
+    const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        setAnchorEl(null);
+    };
 
     const toggleDrawer = (newOpen: boolean) => () => {
         setOpen(newOpen);
-        if(!newOpen){
+        if (!newOpen) {
             setMessages([]);
         }
     };
@@ -61,30 +82,32 @@ export default function SwipeableEdgeDrawer(props: Props) {
     const handleButtonClick = async () => {
         setLoading(true);
         try {
-            const querySnapshot = await getDocs(collection(db, 'pantry'));
-            const items = querySnapshot.docs.map(doc => { return `${doc.data().name}, quantity: ${doc.data().quantity}` }).join("; ");
+            if(user){
+                const querySnapshot = await getDocs(collection(db, `users/${user.uid}/pantry`));
+                const items = querySnapshot.docs.map(doc => `${doc.data().name}, quantity: ${doc.data().quantity}`).join("; ");
 
-            if (items !== "") {
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
-                        "HTTP-Referer": `https://pantrymanagement.vercel.app/`,
-                        "X-Title": `https://pantrymanagement.vercel.app/`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "model": "meta-llama/llama-3.1-8b-instruct:free",
-                        "messages": [
-                            { "role": "system", "content": "You are a world class chef with the best culinary practices. I will give you the list of all the ingredients and it's quantity I have in my pantry and I want you to only return a delicious recipe made out of these items." },
-                            { "role": "user", "content": items },
-                        ],
-                    })
-                }).then(res => res.json());
+                if (items !== "") {
+                    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
+                            "HTTP-Referer": `https://pantrymanagement.vercel.app/`,
+                            "X-Title": `https://pantrymanagement.vercel.app/`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "model": "meta-llama/llama-3.1-8b-instruct:free",
+                            "messages": [
+                                { "role": "system", "content": "You are a world class chef with the best culinary practices. I will give you the list of all the ingredients and it's quantity I have in my pantry and I want you to only return a delicious recipe made out of these items." },
+                                { "role": "user", "content": items },
+                            ],
+                        })
+                    }).then(res => res.json());
 
-                setMessages(parseApiResponse(response.choices[0].message.content));
-            } else {
-                setMessages([<p className='text-xl'>You have No Item in your pantry</p>]);
+                    setMessages(parseApiResponse(response.choices[0].message.content));
+                } else {
+                    setMessages([<p className='text-xl'>You have No Item in your pantry</p>]);
+                }
             }
         } catch (error) {
             setMessages([<p>Error: Something Fucked Up</p>]);
@@ -126,10 +149,33 @@ export default function SwipeableEdgeDrawer(props: Props) {
                     },
                 }}
             />
-            <div style={{ border: '2px solid gray', borderRadius: '50%', display: 'inline-block' }}>
-                <IconButton onClick={toggleDrawer(true)}>
-                    <AutoAwesome color="primary" />
-                </IconButton>
+            <div style={{ display: 'flex', alignItems: 'center',  padding: '0.5rem' }} className='justify-between '>
+                <div style={{ border: '2px solid gray', borderRadius: '50%', }}>
+                <Tooltip title={user ? "Find Some Great Recipes" : "Sign In to get Recipes"}>
+                    <IconButton onClick={toggleDrawer(true)} disabled={!user}>
+                        <AutoAwesome color="primary" />
+                    </IconButton>
+                </Tooltip>
+                </div>
+                {user ? (
+                    <>
+                        <Avatar
+                            alt={user.displayName || "User"}
+                            src={user.photoURL || ""}
+                            onClick={handleMenuClick}
+                            style={{ marginLeft: '0.5rem', cursor: 'pointer' }}
+                        />
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={openMenu}
+                            onClose={handleMenuClose}
+                        >
+                            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                        </Menu>
+                    </>
+                ):(
+                    <Button onClick={() => {signInWithGoogle()}} variant='contained'>Sign In</Button>
+                )}
             </div>
             <SwipeableDrawer
                 container={container}
@@ -138,7 +184,7 @@ export default function SwipeableEdgeDrawer(props: Props) {
                 onClose={toggleDrawer(false)}
                 onOpen={toggleDrawer(true)}
                 swipeAreaWidth={drawerBleeding}
-                disableSwipeToOpen={false}
+                disableSwipeToOpen={!user}
                 disableBackdropTransition={true}
                 disableEscapeKeyDown={true}
                 ModalProps={{

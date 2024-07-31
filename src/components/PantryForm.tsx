@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent, FormEvent, ReactElement, useEffect } from
 import { TextField, Button } from '@mui/material';
 import { collection, addDoc } from "firebase/firestore";
 import { db } from '../lib/firebase';
+import { useAuth } from '@/context/AuthContext';
 
 interface PantryItem {
     id?: string;
@@ -17,6 +18,7 @@ interface PantryFormProps {
 
 const PantryForm: React.FC<PantryFormProps> = ({ className, children, refreshItems }) => {
     const [item, setItem] = useState<PantryItem>({ name: '', quantity: 0 });
+    const { user } = useAuth()
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setItem({
@@ -26,10 +28,12 @@ const PantryForm: React.FC<PantryFormProps> = ({ className, children, refreshIte
     };
 
     const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        await addDoc(collection(db, 'pantry'), item);
-        setItem({ name: '', quantity: 0 });
-        refreshItems();
+        if(user){
+            e.preventDefault();
+            await addDoc(collection(db, `users/${user.uid}/pantry`), item);
+            setItem({ name: '', quantity: 0 });
+            refreshItems();
+        }
     };
 
     return (
