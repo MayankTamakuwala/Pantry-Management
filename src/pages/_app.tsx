@@ -5,6 +5,7 @@ import Head from "next/head";
 import { initializeApp } from "firebase/app";
 import { AlertProvider } from "@/context";
 import { AuthProvider } from "@/context/AuthContext";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export default function App({ Component, pageProps }: AppProps) {
 
@@ -24,6 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
                         <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" /> */}
                     </Head>
                     <Component {...pageProps} />
+                    <GoogleAnalytics gaId="G-R10EFE6EBS" />
                 </AlertProvider>
             </AuthProvider>
         </>
