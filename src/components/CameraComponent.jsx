@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera } from 'react-camera-pro';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress, TextField } from '@mui/material';
 import { Cancel } from '@mui/icons-material';
 import { useAlert } from '@/context';
 import { collection, addDoc, query, where, getDocs, updateDoc } from "firebase/firestore";
@@ -15,6 +15,7 @@ const CameraComponent = ({ refreshItems }) => {
     const [cameraSupported, setCameraSupported] = useState(true);
     const { user } = useAuth();
     const alert = useAlert();
+    const [apiKey, setApiKey] = useState("")
 
     useEffect(() => {
         if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
@@ -68,7 +69,8 @@ const CameraComponent = ({ refreshItems }) => {
                         ],
                 }),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': apiKey
                 }
             })
 
@@ -103,8 +105,13 @@ const CameraComponent = ({ refreshItems }) => {
             setOpenModal(false);
             setLoading(false);
             setImage(null);
+            setApiKey("")
         }
     };
+
+    useEffect(() => {
+        console.log(apiKey)
+    }, [apiKey])
 
     return (
         <Box className="flex flex-col items-center">
@@ -135,17 +142,24 @@ const CameraComponent = ({ refreshItems }) => {
                 disableEscapeKeyDown={loading}
             >
                 <DialogTitle>Photo Taken</DialogTitle>
-                <DialogContent>
+                <DialogContent className='flex flex-col justify-center items-center'>
                     <DialogContentText>
                         Review the photo. Click "Add" to save the item or "Cancel" to discard.
                     </DialogContentText>
+                    <TextField
+                        required
+                        label="Enter Your OpenAI API Key"
+                        variant="outlined"
+                        className='mt-10'
+                        onChange={(e) => { setApiKey(e.target.value) }}
+                    />
                     {image && <img src={image} alt="Taken photo" style={{ width: '100%', marginTop: '10px' }} />}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCancel} disabled={loading} startIcon={<Cancel />}>
                         Cancel
                     </Button>
-                    <Button onClick={handleAdd} variant="contained" color="primary" disabled={loading}>
+                    <Button type='submit' onClick={handleAdd} variant="contained" color="primary" disabled={loading || !apiKey}>
                         {loading ? <CircularProgress size={24} /> : 'Add'}
                     </Button>
                 </DialogActions>

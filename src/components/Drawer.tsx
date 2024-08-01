@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { grey } from '@mui/material/colors';
 import Typography from '@mui/material/Typography';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import { Box, IconButton, Skeleton, Avatar, Menu, MenuItem, Button, Tooltip } from '@mui/material';
+import { Box, IconButton, Skeleton, Avatar, Menu, MenuItem, Button, Tooltip, TextField } from '@mui/material';
 import { AutoAwesome } from '@mui/icons-material';
 import AnimatedRainbowButton from './RainbowButton';
 import { collection, getDocs } from 'firebase/firestore';
@@ -52,6 +52,7 @@ export default function SwipeableEdgeDrawer(props: Props) {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState<React.JSX.Element[]>([]);
     const [loading, setLoading] = useState(false);
+    const [apiKey, setApiKey] = useState("")
     const { user } = useAuth();
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -82,7 +83,7 @@ export default function SwipeableEdgeDrawer(props: Props) {
     const handleButtonClick = async () => {
         setLoading(true);
         try {
-            if(user){
+            if (user) {
                 const querySnapshot = await getDocs(collection(db, `users/${user.uid}/pantry`));
                 const items = querySnapshot.docs.map(doc => `${doc.data().name}, quantity: ${doc.data().quantity}`).join("; ");
 
@@ -90,7 +91,8 @@ export default function SwipeableEdgeDrawer(props: Props) {
                     const response = await fetch("/api/getRecipe", {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Authorization": apiKey
                         },
                         body: JSON.stringify({
                             items: items
@@ -142,13 +144,13 @@ export default function SwipeableEdgeDrawer(props: Props) {
                     },
                 }}
             />
-            <div style={{ display: 'flex', alignItems: 'center',  padding: '0.5rem' }} className='justify-between '>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0.5rem' }} className='justify-between '>
                 <div style={{ border: '2px solid gray', borderRadius: '50%', }}>
-                <Tooltip title={user ? "Find Some Great Recipes" : "Sign In to get Recipes"}>
-                    <IconButton onClick={toggleDrawer(true)} disabled={!user}>
-                        <AutoAwesome color="primary" />
-                    </IconButton>
-                </Tooltip>
+                    <Tooltip title={user ? "Find Some Great Recipes" : "Sign In to get Recipes"}>
+                        <IconButton onClick={toggleDrawer(true)} disabled={!user}>
+                            <AutoAwesome color="primary" />
+                        </IconButton>
+                    </Tooltip>
                 </div>
                 {user ? (
                     <>
@@ -166,8 +168,8 @@ export default function SwipeableEdgeDrawer(props: Props) {
                             <MenuItem onClick={handleLogout}>Logout</MenuItem>
                         </Menu>
                     </>
-                ):(
-                    <Button onClick={() => {signInWithGoogle()}} variant='contained'>Sign In</Button>
+                ) : (
+                    <Button onClick={() => { signInWithGoogle() }} variant='contained'>Sign In</Button>
                 )}
             </div>
             <SwipeableDrawer
@@ -197,7 +199,7 @@ export default function SwipeableEdgeDrawer(props: Props) {
                     className='justify-center items-center text-center'
                 >
                     <Puller />
-                    <Typography sx={{ p: 2, color: 'text.primary', fontWeight:"bold", fontFamily:"fantasy" }} variant='h6'>Find Some Good Recipes</Typography>
+                    <Typography sx={{ p: 2, color: 'text.primary', fontWeight: "bold", fontFamily: "fantasy" }} variant='h6'>Find Some Good Recipes</Typography>
                 </StyledBox>
                 <StyledBox
                     sx={{
@@ -207,13 +209,13 @@ export default function SwipeableEdgeDrawer(props: Props) {
                         overflow: 'auto',
                     }}
                 >
-                    <Box height="100%" width="100%" 
+                    <Box height="100%" width="100%"
                         sx={{
-                            display:"flex", 
-                            justifyContent: "center", 
-                            alignItems: (messages.length > 0) ? "flex-start" : "center", 
-                            flexDirection:"column", 
-                            backgroundColor: "rgb(243,243,243)", 
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: (messages.length > 0) ? "flex-start" : "center",
+                            flexDirection: "column",
+                            backgroundColor: "rgb(243,243,243)",
                             overflow: "auto"
                         }}
                     >
@@ -240,10 +242,19 @@ export default function SwipeableEdgeDrawer(props: Props) {
                                 ))}
                             </div>
                         ) : (
-                            <AnimatedRainbowButton onClick={handleButtonClick}>
-                                <AutoAwesome className='text-white p-0' />
-                                <span className='ml-2'>Do your Magic</span>
-                            </AnimatedRainbowButton>
+                            <>
+                                <TextField
+                                    required
+                                    label="Enter Your OpenRouter API Key"
+                                    variant="outlined"
+                                    className='mb-10 w-64'
+                                    onChange={(e) => { setApiKey(e.target.value) }}
+                                />
+                                <AnimatedRainbowButton onClick={handleButtonClick} disabled={!apiKey}>
+                                    <AutoAwesome className='text-white p-0' />
+                                    <span className='ml-2'>Do your Magic</span>
+                                </AnimatedRainbowButton>
+                            </>
                         )}
                     </Box>
                 </StyledBox>

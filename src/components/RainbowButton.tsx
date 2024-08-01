@@ -61,7 +61,17 @@ const RainbowButton = styled(Button)`
             transform: rotate(360deg);
         }
     }
-    `;
+
+    &.Mui-disabled {
+        background: gray;
+        animation: none;
+        color: lightgray;
+        cursor: not-allowed;
+        &::before {
+            content: none;
+        }
+    }
+`;
 
 interface AnimatedRainbowButtonProps extends ButtonProps {
     children: React.ReactNode;
@@ -70,8 +80,8 @@ interface AnimatedRainbowButtonProps extends ButtonProps {
 
 const AnimatedRainbowButton: React.FC<AnimatedRainbowButtonProps> = ({ children, onClick, ...props }) => {
     return (
-        <RainbowButton 
-            className="px-4 py-2 rounded-lg" 
+        <RainbowButton
+            className="px-4 py-2 rounded-lg"
             {...props}
             onClick={onClick}
         >

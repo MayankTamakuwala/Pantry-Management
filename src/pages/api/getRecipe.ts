@@ -13,7 +13,7 @@ export default async function handler(
 					{
 						method: "POST",
 						headers: {
-							Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+							Authorization: `Bearer ${req.headers["authorization"]}`,
 							"HTTP-Referer": `https://pantrymanagement.vercel.app/`,
 							"X-Title": `https://pantrymanagement.vercel.app/`,
 							"Content-Type": "application/json",
