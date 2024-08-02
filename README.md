@@ -60,10 +60,9 @@ Watch the demo on YouTube: [YouTube Link](https://youtu.be/B55EC1lU9SU)
 
 ## Contact
 If you have any questions or need further assistance, feel free to reach out:
-    - **Name**: Mayank Tamakuwala
-    - **Email**: maytamaku.saidhwar@gmail.com
+- **Name**: Mayank Tamakuwala
+- **Email**: maytamaku.saidhwar@gmail.com
 
 Thank you for checking out the Pantry Management System. I hope you find it as useful and fun to use as I do!
 
-Cheers,
-Mayank Tamakuwala
+Cheers!
