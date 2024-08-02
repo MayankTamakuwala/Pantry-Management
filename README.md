@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<div align="center">
+    <img src = "https://github.com/MayankTamakuwala/Pantry-Management/blob/main/public/logo.png" width="300">
+    <h1 align="center">Pantry Management System</h1>
+</div>
 
-## Getting Started
+Welcome to the Pantry Management System! This app is designed to help you keep track of your pantry items, generate recipes, and manage your kitchen efficiently. Built with cutting-edge technologies like Next.js, Tailwind CSS, and Material UI, it leverages AI to offer advanced features.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Google Login**: Securely log in using your Google account.
+- **Add Items Easily**: Add items to your pantry using a simple form or by snapping a photo with your device camera.
+- **AI-Powered Item Recognition**: Photos are processed by the OpenAI Model GPT-4, which identifies the items in your pantry.
+- **AI-Generated Recipes**: Generate recipes with the help of the AI Llama Model 3. Recipes are suggested based on the items available in your pantry.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Next.js**: For a fast, server-rendered React application.
+- **Tailwind CSS**: For styling and a great UI/UX experience.
+- **Material UI**: For additional UI components and consistency.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Why You'll Love It
 
-## Learn More
+- **Convenience**: Easily keep track of what's in your pantry.
+- **AI Integration**: Take advantage of cutting-edge AI models to simplify pantry management and meal planning.
+- **Recipe Inspiration**: Never run out of meal ideas with AI-generated recipes based on what you already have.
 
-To learn more about Next.js, take a look at the following resources:
+## Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To get started with the Pantry Management System, follow these steps:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/MayankTamakuwala/Pantry-Management.git
+    ```
 
-## Deploy on Vercel
+2. **Navigate to the project directory**:
+    ```bash
+    cd pantry-management-system
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Install dependencies:**:
+    ```bash
+    npm install
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+4. **Run the development server:**:
+    ```bash
+    npm run dev
+    ```
+
+5.	Open `http://localhost:3000` with your browser to see the result.
+
+## Deployment
+
+The app is deployed on Vercel. You can visit it at https://pantrymanagement.vercel.app.
+
+## Demo
+
+Watch the demo on YouTube: [YouTube Link](https://youtu.be/B55EC1lU9SU)
+
+## Contact
+If you have any questions or need further assistance, feel free to reach out:
+    - **Name**: Mayank Tamakuwala
+    - **Email**: maytamaku.saidhwar@gmail.com
+
+Thank you for checking out the Pantry Management System. I hope you find it as useful and fun to use as I do!
+
+Cheers,
+Mayank Tamakuwala
